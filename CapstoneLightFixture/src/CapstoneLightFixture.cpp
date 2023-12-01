@@ -17,7 +17,7 @@
 #include <Adafruit_MQTT/Adafruit_MQTT_SPARK.h>
 #include <Adafruit_MQTT/Adafruit_MQTT.h>
 
-const int sigPin = D16;
+const int sigPin = A5;
 const float FREQ = 0.2;
 const int PIXELCOUNT = 60;
 const int LIGHTCOLOR = 0xFF8B17; // Hex color for 2700K light
@@ -66,16 +66,16 @@ float buttonOnOff;
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
-  //Serial.begin(9600);
-  //waitFor(Serial.isConnected,10000);
+  Serial.begin(9600);
+ // waitFor(Serial.isConnected,15000);
 
 // Connect to Internet but not Particle Cloud
-//   WiFi.on();
-//   WiFi.connect();
-//   while(WiFi.connecting()) {
-//   Serial.printf(".");
+   //WiFi.on();
+   //WiFi.connect();
+   //while(WiFi.connecting()) {
+   //Serial.printf(".");
 
-//   }
+  // }
 
   //Serial.printf("\n\n");
 
@@ -89,8 +89,6 @@ void setup() {
   pinMode (ledPin5, OUTPUT);
   pinMode (ledPin6, OUTPUT);
 
-  Serial.begin(9600);
-  waitFor(Serial.isConnected,15000);
 
   pixel.begin();
   pixel.setBrightness(255);
@@ -106,89 +104,89 @@ void loop() {
   rangeInInches = ultrasonic.MeasureInInches();
   Serial.printf("Distance:%i\n", rangeInInches);
 
-//   if ((rangeInInches<5)&&(rangeInInches>0)){
-//    digitalWrite (ledPin1, 255);
-//    delay (5000);
-//    digitalWrite (ledPin1, 192);
-//    delay (5000);
-//    digitalWrite (ledPin1, 129);
-//    delay (5000);
-//    digitalWrite (ledPin1, 63);
-//    delay (5000);
-//    digitalWrite (ledPin1, LOW);
+  if ((rangeInInches<5)&&(rangeInInches>0)){
+   digitalWrite (ledPin1, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin1, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin1, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin1, 63);
+  //  delay (5000);
+  //  digitalWrite (ledPin1, LOW);
   
-// }
+}
 
-// if ((rangeInInches<7)&&(rangeInInches>5)){
-//    digitalWrite (ledPin2, 255);
-//    delay (5000);
-//    digitalWrite (ledPin2, 192);
-//    delay (5000);
-//    digitalWrite (ledPin2, 129);
-//    delay (5000);
-//    digitalWrite (ledPin2, 63);
-//    delay (5000);
-//    digitalWrite (ledPin2, LOW);
+if ((rangeInInches<7)&&(rangeInInches>5)){
+   digitalWrite (ledPin2, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin2, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin2, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin2, 63);
+  //  delay (5000);
+    digitalWrite (ledPin2, LOW);
   
-// }
+}
 
-// if ((rangeInInches<9)&&(rangeInInches>7)){
-//    digitalWrite (ledPin3, 255);
-//    delay (5000);
-//    digitalWrite (ledPin3, 192);
-//    delay (5000);
-//    digitalWrite (ledPin3, 129);
-//    delay (5000);
-//    digitalWrite (ledPin3, 63);
-//    delay (5000);
-//    digitalWrite (ledPin3, LOW);
+if ((rangeInInches<9)&&(rangeInInches>7)){
+   digitalWrite (ledPin3, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin3, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin3, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin3, 63);
+  //  delay (5000);
+    digitalWrite (ledPin3, LOW);
   
-// }
+}
 
-// if ((rangeInInches<11)&&(rangeInInches>9)){
-//    digitalWrite (ledPin4, 255);
-//    delay (5000);
-//    digitalWrite (ledPin4, 192);
-//    delay (5000);
-//    digitalWrite (ledPin4, 129);
-//    delay (5000);
-//    digitalWrite (ledPin4, 63);
-//    delay (5000);
-//    digitalWrite (ledPin4, LOW);
+if ((rangeInInches<11)&&(rangeInInches>9)){
+   digitalWrite (ledPin4, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin4, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin4, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin4, 63);
+  //  delay (5000);
+    digitalWrite (ledPin4, LOW);
   
-// }
+}
 
-// if ((rangeInInches<13)&&(rangeInInches>11)){
-//    digitalWrite (ledPin5, 255);
-//    delay (5000);
-//    digitalWrite (ledPin5, 192);
-//    delay (5000);
-//    digitalWrite (ledPin5, 129);
-//    delay (5000);
-//    digitalWrite (ledPin5, 63);
-//    delay (5000);
-//    digitalWrite (ledPin5, LOW);
-// }
+if ((rangeInInches<13)&&(rangeInInches>11)){
+   digitalWrite (ledPin5, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin5, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin5, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin5, 63);
+  //  delay (5000);
+    digitalWrite (ledPin5, LOW);
+}
 
-// if ((rangeInInches<15)&&(rangeInInches>13)){
-//    digitalWrite (ledPin6, 255);
-//    delay (5000);
-//    digitalWrite (ledPin6, 192);
-//    delay (5000);
-//    digitalWrite (ledPin6, 129);
-//    delay (5000);
-//    digitalWrite (ledPin6, 63);
-//    delay (5000);
-//    digitalWrite (ledPin6, LOW);
+if ((rangeInInches<15)&&(rangeInInches>13)){
+   digitalWrite (ledPin6, 255);
+  //  delay (5000);
+  //  digitalWrite (ledPin6, 192);
+  //  delay (5000);
+  //  digitalWrite (ledPin6, 129);
+  //  delay (5000);
+  //  digitalWrite (ledPin6, 63);
+  //  delay (5000);
+    digitalWrite (ledPin6, LOW);
   
-// }
+}
 
-//     t = millis()/1000.0;
+    t = millis()/1000.0;
 
-//   for(i=0;i<PIXELCOUNT;i++) {
+  for(i=0;i<PIXELCOUNT;i++) {
     
-//     scale[i] = 0.25*sin(2*M_PI*((FREQ*t) - (i/(float)PIXELCOUNT)))+0.3;
-//     pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
-//   }
-//   pixel.show();
+    scale[i] = 0.25*sin(2*M_PI*((FREQ*t) - (i/(float)PIXELCOUNT)))+0.3;
+    pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
+  }
+  pixel.show();
 }
