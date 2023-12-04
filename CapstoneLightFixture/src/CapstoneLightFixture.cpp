@@ -16,6 +16,7 @@
 #include "credentials.h"
 #include <Adafruit_MQTT/Adafruit_MQTT_SPARK.h>
 #include <Adafruit_MQTT/Adafruit_MQTT.h>
+#include "Adafruit_PWMServoDriver.h"
 
 const int sigPin = A5;
 const float FREQ = 0.2;
@@ -23,10 +24,12 @@ const int PIXELCOUNT = 60;
 const int LIGHTCOLOR = 0xFF8B17; // Hex color for 2700K light
 const int publishTime = 600000;
 Adafruit_NeoPixel pixel (PIXELCOUNT, SPI, WS2812B);
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 float t;
 float scale[PIXELCOUNT];
 int i;
+int bri;
 int cred, cgreen, cblue;
 int ledPin1 = D1;
 int ledPin2 = D2;
@@ -37,10 +40,50 @@ int ledPin6 = D6;
 int distanceInch;
 float distance;
 float inch;
+float personTimer1;
+float personTimer2;
+float personTimer3;
+float personTimer4;
+float personTimer5;
+float personTimer6;
+float personTimer7;
+float personTimer8;
+float personTimer9;
+float personTimer10;
+float personTimer11;
+float personTimer12;
+
+float timeSincePerson1;
+float timeSincePerson2;
+float timeSincePerson3;
+float timeSincePerson4;
+float timeSincePerson5;
+float timeSincePerson6;
+float timeSincePerson7;
+float timeSincePerson8;
+float timeSincePerson9;
+float timeSincePerson10;
+float timeSincePerson11;
+float timeSincePerson12;
+
+int personDetected1;
+int personDetected2;
+int personDetected3;
+int personDetected4;
+int personDetected5;
+int personDetected6;
+int personDetected7;
+int personDetected8;
+int personDetected9;
+int personDetected10;
+int personDetected11;
+int personDetected12;
+
 int rangeInInches;
 
 Ultrasonic ultrasonic(sigPin);
 SYSTEM_MODE(SEMI_AUTOMATIC);
+SYSTEM_THREAD(ENABLED);
 
 /************ Global State (you don't need to change this!) ***   ***************/ 
 TCPClient TheClient; 
@@ -67,6 +110,8 @@ SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
   Serial.begin(9600);
+  pwm.begin();
+  pwm.setPWMFreq(1600);
  // waitFor(Serial.isConnected,15000);
 
 // Connect to Internet but not Particle Cloud
@@ -105,80 +150,219 @@ void loop() {
   Serial.printf("Distance:%i\n", rangeInInches);
 
   if ((rangeInInches<5)&&(rangeInInches>0)){
-   digitalWrite (ledPin1, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin1, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin1, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin1, 63);
-  //  delay (5000);
-  //  digitalWrite (ledPin1, LOW);
-  
+    if (personDetected1){
+      personTimer1 = millis();
+    }
+
+    timeSincePerson1 = (millis()-personTimer1)/1000.0;
+    if (timeSincePerson1<30){
+      bri = 4095*(1-(timeSincePerson1/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(1,0,bri);
+
 }
 
 if ((rangeInInches<7)&&(rangeInInches>5)){
-   digitalWrite (ledPin2, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin2, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin2, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin2, 63);
-  //  delay (5000);
-    digitalWrite (ledPin2, LOW);
-  
+   if (personDetected2){
+      personTimer2 = millis();
+    }
+
+    timeSincePerson2 = (millis()-personTimer2)/1000.0;
+    if (timeSincePerson2<30){
+      bri = 4095*(1-(timeSincePerson2/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(2,0,bri);
+
 }
 
 if ((rangeInInches<9)&&(rangeInInches>7)){
-   digitalWrite (ledPin3, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin3, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin3, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin3, 63);
-  //  delay (5000);
-    digitalWrite (ledPin3, LOW);
-  
+   if (personDetected3){
+      personTimer3 = millis();
+    }
+
+    timeSincePerson3 = (millis()-personTimer3)/1000.0;
+    if (timeSincePerson3<30){
+      bri = 4095*(1-(timeSincePerson3/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(3,0,bri);
+
 }
 
 if ((rangeInInches<11)&&(rangeInInches>9)){
-   digitalWrite (ledPin4, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin4, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin4, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin4, 63);
-  //  delay (5000);
-    digitalWrite (ledPin4, LOW);
-  
+  if (personDetected4){
+      personTimer4 = millis();
+    }
+
+    timeSincePerson4 = (millis()-personTimer4)/1000.0;
+    if (timeSincePerson4<30){
+      bri = 4095*(1-(timeSincePerson4/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(4,0,bri);
+
 }
 
 if ((rangeInInches<13)&&(rangeInInches>11)){
-   digitalWrite (ledPin5, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin5, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin5, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin5, 63);
-  //  delay (5000);
-    digitalWrite (ledPin5, LOW);
+   if (personDetected5){
+      personTimer5 = millis();
+    }
+
+    timeSincePerson5 = (millis()-personTimer5)/1000.0;
+    if (timeSincePerson5<30){
+      bri = 4095*(1-(timeSincePerson5/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(5,0,bri);
+
 }
 
 if ((rangeInInches<15)&&(rangeInInches>13)){
-   digitalWrite (ledPin6, 255);
-  //  delay (5000);
-  //  digitalWrite (ledPin6, 192);
-  //  delay (5000);
-  //  digitalWrite (ledPin6, 129);
-  //  delay (5000);
-  //  digitalWrite (ledPin6, 63);
-  //  delay (5000);
-    digitalWrite (ledPin6, LOW);
-  
+   if (personDetected6){
+      personTimer6 = millis();
+    }
+
+    timeSincePerson6 = (millis()-personTimer6)/1000.0;
+    if (timeSincePerson6<30){
+      bri = 4095*(1-(timeSincePerson6/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(6,0,bri);
+
+}
+
+if ((rangeInInches<17)&&(rangeInInches>15)){
+   if (personDetected7){
+      personTimer7 = millis();
+    }
+
+    timeSincePerson7 = (millis()-personTimer7)/1000.0;
+    if (timeSincePerson7<30){
+      bri = 4095*(1-(timeSincePerson7/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(7,0,bri);
+
+}
+
+if ((rangeInInches<19)&&(rangeInInches>17)){
+   if (personDetected8){
+      personTimer8 = millis();
+    }
+
+    timeSincePerson8 = (millis()-personTimer8)/1000.0;
+    if (timeSincePerson8<30){
+      bri = 4095*(1-(timeSincePerson8/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(8,0,bri);
+
+}
+
+if ((rangeInInches<21)&&(rangeInInches>19)){
+   if (personDetected9){
+      personTimer9 = millis();
+    }
+
+    timeSincePerson9 = (millis()-personTimer9)/1000.0;
+    if (timeSincePerson9<30){
+      bri = 4095*(1-(timeSincePerson9/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(9,0,bri);
+
+}
+
+if ((rangeInInches<23)&&(rangeInInches>21)){
+   if (personDetected10){
+      personTimer10 = millis();
+    }
+
+    timeSincePerson10 = (millis()-personTimer10)/1000.0;
+    if (timeSincePerson10<30){
+      bri = 4095*(1-(timeSincePerson10/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(10,0,bri);
+
+}
+
+if ((rangeInInches<25)&&(rangeInInches>23)){
+   if (personDetected11){
+      personTimer11 = millis();
+    }
+
+    timeSincePerson11 = (millis()-personTimer11)/1000.0;
+    if (timeSincePerson11<30){
+      bri = 4095*(1-(timeSincePerson11/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(11,0,bri);
+
+}
+
+if ((rangeInInches<27)&&(rangeInInches>25)){
+   if (personDetected12){
+      personTimer12 = millis();
+    }
+
+    timeSincePerson12 = (millis()-personTimer12)/1000.0;
+    if (timeSincePerson12<30){
+      bri = 4095*(1-(timeSincePerson12/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(12,0,bri);
+
 }
 
     t = millis()/1000.0;
