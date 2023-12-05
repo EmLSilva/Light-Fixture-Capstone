@@ -176,17 +176,31 @@ void setup() {
 
 void loop() {
 
-  personLocation = personPosition();
-  Serial.printf("Person Position:%i\r",personLocation);
+  //personLocation = personPosition();
+  //Serial.printf("Person Position:%i\r",personLocation);
+  
+
+
+ 
+  
+  
+
+    t = millis()/1000.0;
+
+  for(i=0;i<PIXELCOUNT;i++) {
+    
+    scale[i] = 0.25*sin(2*M_PI*((FREQ*t) - (i/(float)PIXELCOUNT)))+0.3;
+    pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
+  }
+  pixel.show();
+}
+
 
   int personPosition(){
     VL53L0X_RangingMeasurementData_t measure;
-    int personPosition;  
-  }
- 
-  lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
-
-  if (measure.RangeStatus != 0) {  
+    static int personPosition;  
+    lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+    if (measure.RangeStatus != 0) {  
     if(measure.RangeMilliMeter <= 2){
      if (personPosition){
       personTimer0 = millis();
@@ -392,13 +406,5 @@ void loop() {
   } 
   
 }
-
-    t = millis()/1000.0;
-
-  for(i=0;i<PIXELCOUNT;i++) {
-    
-    scale[i] = 0.25*sin(2*M_PI*((FREQ*t) - (i/(float)PIXELCOUNT)))+0.3;
-    pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
+return measure.RangeMilliMeter;
   }
-  pixel.show();
-}
