@@ -33,14 +33,21 @@ float scale[PIXELCOUNT];
 int i;
 int bri;
 int cred, cgreen, cblue;
-int position();
-int location;
-// int ledPin1 = D1;
-// int ledPin2 = D2;
-// int ledPin3 = D3;
-// int ledPin4 = D4;
-// int ledPin5 = D5;
-// int ledPin6 = D6;
+int personPosition();
+int personLocation;
+
+int ledPin0 = D1;
+int ledPin1 = D1;
+int ledPin2 = D2;
+int ledPin3 = D3;
+int ledPin4 = D4;
+int ledPin5 = D5;
+int ledPin6 = D6;
+int ledPin7 = D2;
+int ledPin8 = D3;
+int ledPin9 = D4;
+int ledPin10 = D5;
+int ledPin11 = D6;
 
 float personTimer0;
 float personTimer1;
@@ -83,7 +90,7 @@ int personDetected11;
 
 int rangeInInches;
 
-lox ultrasonic();
+//lox ultrasonic();
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
@@ -111,6 +118,19 @@ float buttonOnOff;
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
+  pinMode (ledPin0, OUTPUT);
+  pinMode (ledPin1, OUTPUT);
+  pinMode (ledPin2, OUTPUT);
+  pinMode (ledPin3, OUTPUT);
+  pinMode (ledPin4, OUTPUT);
+  pinMode (ledPin5, OUTPUT);
+  pinMode (ledPin6, OUTPUT);
+   pinMode (ledPin7, OUTPUT);
+  pinMode (ledPin8, OUTPUT);
+  pinMode (ledPin9, OUTPUT);
+  pinMode (ledPin10, OUTPUT);
+  pinMode (ledPin11, OUTPUT);
+
   Serial.begin(9600);
   waitFor(Serial.isConnected,10000);
   pwm.begin();
@@ -156,14 +176,18 @@ void setup() {
 
 void loop() {
 
-  rangeInInches = lox.measureInInches();
-  Serial.printf("Distance:%i\n", rangeInInches);
-  VL53L0X_RangingMeasurementData_t measure;
+  personLocation = personPosition();
+  Serial.printf("Person Position:%i\r",personLocation);
 
-   lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+  int personPosition(){
+    VL53L0X_RangingMeasurementData_t measure;
+    int personPosition;  
+ 
+  lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
 
-  if ((rangeInInches<3)&&(rangeInInches>0)){
-    if (personDetected0){
+  //if (measure.RangeStatus != 4) {  // phase failures have incorrect data
+  if(measure.RangeMilliMeter <= 2){
+     if (personPosition){
       personTimer0 = millis();
     }
 
@@ -177,9 +201,10 @@ void loop() {
     }
 
    pwm.setPWM(0,0,bri);
-  
-  if ((rangeInInches<5)&&(rangeInInches>0)){
-    if (personDetected1){
+    }
+
+    else if(measure.RangeMilliMeter >2 && measure.RangeMilliMeter <=4){
+      if (personPosition){
       personTimer1 = millis();
     }
 
@@ -193,11 +218,9 @@ void loop() {
     }
 
    pwm.setPWM(1,0,bri);
-
-}
-
-if ((rangeInInches<7)&&(rangeInInches>5)){
-   if (personDetected2){
+    }
+    else if(measure.RangeMilliMeter >4 && measure.RangeMilliMeter <=6){
+      if (personDetected2){
       personTimer2 = millis();
     }
 
@@ -212,10 +235,9 @@ if ((rangeInInches<7)&&(rangeInInches>5)){
 
    pwm.setPWM(2,0,bri);
 
-}
-
-if ((rangeInInches<9)&&(rangeInInches>7)){
-   if (personDetected3){
+    }
+    else if(measure.RangeMilliMeter >6 && measure.RangeMilliMeter <=8){
+      if (personDetected3){
       personTimer3 = millis();
     }
 
@@ -230,10 +252,9 @@ if ((rangeInInches<9)&&(rangeInInches>7)){
 
    pwm.setPWM(3,0,bri);
 
-}
-
-if ((rangeInInches<11)&&(rangeInInches>9)){
-  if (personDetected4){
+      }
+    else if(measure.RangeMilliMeter >8 && measure.RangeMilliMeter <=10){
+      if (personDetected4){
       personTimer4 = millis();
     }
 
@@ -248,10 +269,9 @@ if ((rangeInInches<11)&&(rangeInInches>9)){
 
    pwm.setPWM(4,0,bri);
 
-}
-
-if ((rangeInInches<13)&&(rangeInInches>11)){
-   if (personDetected5){
+      }
+    else if(measure.RangeMilliMeter >10 && measure.RangeMilliMeter <=12){
+      if (personDetected5){
       personTimer5 = millis();
     }
 
@@ -265,12 +285,10 @@ if ((rangeInInches<13)&&(rangeInInches>11)){
     }
 
    pwm.setPWM(5,0,bri);
-
-}
-
-if ((rangeInInches<15)&&(rangeInInches>13)){
-   if (personDetected6){
-      personTimer6 = millis();
+      }
+    else if(measure.RangeMilliMeter >14 && measure.RangeMilliMeter <=16){
+      if (personDetected6){
+        personTimer6 = millis();
     }
 
     timeSincePerson6 = (millis()-personTimer6)/1000.0;
@@ -283,12 +301,10 @@ if ((rangeInInches<15)&&(rangeInInches>13)){
     }
 
    pwm.setPWM(6,0,bri);
-
-}
-
-if ((rangeInInches<17)&&(rangeInInches>15)){
-   if (personDetected7){
-      personTimer7 = millis();
+      }
+    else if(measure.RangeMilliMeter >18 && measure.RangeMilliMeter <=20){
+       if (personDetected7){
+        personTimer7 = millis();
     }
 
     timeSincePerson7 = (millis()-personTimer7)/1000.0;
@@ -302,11 +318,10 @@ if ((rangeInInches<17)&&(rangeInInches>15)){
 
    pwm.setPWM(7,0,bri);
 
-}
-
-if ((rangeInInches<19)&&(rangeInInches>17)){
-   if (personDetected8){
-      personTimer8 = millis();
+      }
+    else if(measure.RangeMilliMeter >20 && measure.RangeMilliMeter <=22){
+       if (personDetected8){
+        personTimer8 = millis();
     }
 
     timeSincePerson8 = (millis()-personTimer8)/1000.0;
@@ -320,10 +335,9 @@ if ((rangeInInches<19)&&(rangeInInches>17)){
 
    pwm.setPWM(8,0,bri);
 
-}
-
-if ((rangeInInches<21)&&(rangeInInches>19)){
-   if (personDetected9){
+      }
+    else if(measure.RangeMilliMeter >22 && measure.RangeMilliMeter <=24){
+     if (personDetected9){
       personTimer9 = millis();
     }
 
@@ -338,10 +352,9 @@ if ((rangeInInches<21)&&(rangeInInches>19)){
 
    pwm.setPWM(9,0,bri);
 
-}
-
-if ((rangeInInches<23)&&(rangeInInches>21)){
-   if (personDetected10){
+      }
+    else if(measure.RangeMilliMeter >26 && measure.RangeMilliMeter <=28){
+      if (personDetected10){
       personTimer10 = millis();
     }
 
@@ -355,12 +368,10 @@ if ((rangeInInches<23)&&(rangeInInches>21)){
     }
 
    pwm.setPWM(10,0,bri);
-
-}
-
-if ((rangeInInches<25)&&(rangeInInches>23)){
-   if (personDetected11){
-      personTimer11 = millis();
+      }
+    else if(measure.RangeMilliMeter >28 && measure.RangeMilliMeter <=30){
+      if (personDetected11){
+        personTimer11 = millis();
     }
 
     timeSincePerson11 = (millis()-personTimer11)/1000.0;
@@ -374,6 +385,8 @@ if ((rangeInInches<25)&&(rangeInInches>23)){
 
    pwm.setPWM(11,0,bri);
 
+  } 
+  
 }
 
     t = millis()/1000.0;
@@ -384,6 +397,4 @@ if ((rangeInInches<25)&&(rangeInInches>23)){
     pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
   }
   pixel.show();
-}
-
 }
