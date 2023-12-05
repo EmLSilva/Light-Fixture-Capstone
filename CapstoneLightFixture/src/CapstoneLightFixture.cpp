@@ -21,7 +21,7 @@
 
 //const int sigPin = A5;
 const float FREQ = 0.2;
-const int PIXELCOUNT = 60;
+const int PIXELCOUNT = 120;
 const int LIGHTCOLOR = 0xFF8B17; // Hex color for 2700K light
 const int publishTime = 600000;
 Adafruit_NeoPixel pixel (PIXELCOUNT, SPI, WS2812B);
@@ -31,10 +31,11 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 float t;
 float scale[PIXELCOUNT];
 int i;
-int bri;
+int bri[12];
 int cred, cgreen, cblue;
 int personPosition();
 int personLocation;
+int segment;
 
 
 // int ledPin0 = D1;
@@ -50,31 +51,31 @@ int personLocation;
 // int ledPin10 = D5;
 // int ledPin11 = D6;
 
-float personTimer0;
-float personTimer1;
-float personTimer2;
-float personTimer3;
-float personTimer4;
-float personTimer5;
-float personTimer6;
-float personTimer7;
-float personTimer8;
-float personTimer9;
-float personTimer10;
-float personTimer11;
+float personTimer[12];
+// float personTimer1;
+// float personTimer2;
+// float personTimer3;
+// float personTimer4;
+// float personTimer5;
+// float personTimer6;
+// float personTimer7;
+// float personTimer8;
+// float personTimer9;
+// float personTimer10;
+// float personTimer11;
 
-float timeSincePerson0;
-float timeSincePerson1;
-float timeSincePerson2;
-float timeSincePerson3;
-float timeSincePerson4;
-float timeSincePerson5;
-float timeSincePerson6;
-float timeSincePerson7;
-float timeSincePerson8;
-float timeSincePerson9;
-float timeSincePerson10;
-float timeSincePerson11;
+float timeSincePerson;
+// float timeSincePerson1;
+// float timeSincePerson2;
+// float timeSincePerson3;
+// float timeSincePerson4;
+// float timeSincePerson5;
+// float timeSincePerson6;
+// float timeSincePerson7;
+// float timeSincePerson8;
+// float timeSincePerson9;
+// float timeSincePerson10;
+// float timeSincePerson11;
 
 int personDetected0;
 int personDetected1;
@@ -179,9 +180,35 @@ void setup() {
 
 void loop() {
 
-  personLocation = personPosition();
-  Serial.printf("Person Position:%i\r",personLocation);
+  //personLocation = personPosition();
+  //Serial.printf("Person Position:%i\r",personLocation);
+       VL53L0X_RangingMeasurementData_t measure;
+    //static int personPosition;  
+    lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+    if (measure.RangeStatus != 0) {  
+      Serial.printf("mm: %i\n", measure.RangeMilliMeter);
+  //measure.RangeMilliMeter;
+      segment = measure.RangeMilliMeter/25;
+    }
+  if (segment<12){
+  personTimer[i]= millis();
+  Serial.printf("Segment %i \n", segment);
+}
+for (int ii=0; ii<12; ii++){
+  timeSincePerson = ((millis()-personTimer[ii])/1000.0);
+  if (timeSincePerson <30){
+    bri[ii]= 4095*(1-(timeSincePerson/30.0));
+  }
+  else{
+    bri[ii]= 0;
+  }
+  }
+  for (int iii=0; iii<12; iii++){
+  pwm.setPWM(iii,0,bri[iii]);
+}
+
     
+
 }
 
 void pixelWave(){
@@ -200,215 +227,220 @@ while(true){
 }
 }
 
-  int personPosition(){
-    VL53L0X_RangingMeasurementData_t measure;
-    static int personPosition;  
-    lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
-    if (measure.RangeStatus != 0) {  
-    if(measure.RangeMilliMeter <= 2){
-     if (personPosition){
-      personTimer0 = millis();
-    }
 
-    timeSincePerson0 = (millis()-personTimer0)/1000.0;
-    if (timeSincePerson0<30){
-      bri = 4095*(1-(timeSincePerson0/30.0));
-    }
 
-    else {
-      bri = 0;
-    }
 
-   pwm.setPWM(0,0,bri);
-    }
-
-    else if(measure.RangeMilliMeter >2 && measure.RangeMilliMeter <=4){
-      if (personPosition){
-        personTimer1 = millis();
-      }
-
-    timeSincePerson1 = (millis()-personTimer1)/1000.0;
-    if (timeSincePerson1<30){
-      bri = 4095*(1-(timeSincePerson1/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(1,0,bri);
-    }
-
-    else if(measure.RangeMilliMeter >4 && measure.RangeMilliMeter <=6){
-      if (personDetected2){
-        personTimer2 = millis();
-      }
-
-    timeSincePerson2 = (millis()-personTimer2)/1000.0;
-    if (timeSincePerson2<30){
-      bri = 4095*(1-(timeSincePerson2/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(2,0,bri);
-    }
-
-    else if(measure.RangeMilliMeter >6 && measure.RangeMilliMeter <=8){
-      if (personDetected3){
-        personTimer3 = millis();
-      }
-
-    timeSincePerson3 = (millis()-personTimer3)/1000.0;
-    if (timeSincePerson3<30){
-      bri = 4095*(1-(timeSincePerson3/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(3,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >8 && measure.RangeMilliMeter <=10){
-      if (personDetected4){
-        personTimer4 = millis();
-     }
-
-    timeSincePerson4 = (millis()-personTimer4)/1000.0;
-    if (timeSincePerson4<30){
-      bri = 4095*(1-(timeSincePerson4/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(4,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >10 && measure.RangeMilliMeter <=12){
-      if (personDetected5){
-        personTimer5 = millis();
-      }
-
-    timeSincePerson5 = (millis()-personTimer5)/1000.0;
-    if (timeSincePerson5<30){
-      bri = 4095*(1-(timeSincePerson5/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(5,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >14 && measure.RangeMilliMeter <=16){
-      if (personDetected6){
-        personTimer6 = millis();
-    }
-
-    timeSincePerson6 = (millis()-personTimer6)/1000.0;
-    if (timeSincePerson6<30){
-      bri = 4095*(1-(timeSincePerson6/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(6,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >18 && measure.RangeMilliMeter <=20){
-      if (personDetected7){
-        personTimer7 = millis();
-      }
-
-    timeSincePerson7 = (millis()-personTimer7)/1000.0;
-    if (timeSincePerson7<30){
-      bri = 4095*(1-(timeSincePerson7/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(7,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >20 && measure.RangeMilliMeter <=22){
-      if (personDetected8){
-        personTimer8 = millis();
-      }
-
-    timeSincePerson8 = (millis()-personTimer8)/1000.0;
-    if (timeSincePerson8<30){
-      bri = 4095*(1-(timeSincePerson8/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(8,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >22 && measure.RangeMilliMeter <=24){
-      if (personDetected9){
-        personTimer9 = millis();
-      }
-
-    timeSincePerson9 = (millis()-personTimer9)/1000.0;
-    if (timeSincePerson9<30){
-      bri = 4095*(1-(timeSincePerson9/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(9,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >26 && measure.RangeMilliMeter <=28){
-      if (personDetected10){
-        personTimer10 = millis();
-     }
-
-    timeSincePerson10 = (millis()-personTimer10)/1000.0;
-    if (timeSincePerson10<30){
-      bri = 4095*(1-(timeSincePerson10/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(10,0,bri);
-      }
-
-    else if(measure.RangeMilliMeter >28 && measure.RangeMilliMeter <=30){
-      if (personDetected11){
-        personTimer11 = millis();
-      }
-
-    timeSincePerson11 = (millis()-personTimer11)/1000.0;
-    if (timeSincePerson11<30){
-      bri = 4095*(1-(timeSincePerson11/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(11,0,bri);
-  } 
   
-}
-return measure.RangeMilliMeter;
-  }
+
+//   int personPosition(){
+//     VL53L0X_RangingMeasurementData_t measure;
+//     static int personPosition;  
+//     lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+//     if (measure.RangeStatus != 0) {  
+//     if(measure.RangeMilliMeter <= 2){
+//      if (personPosition){
+//       personTimer0 = millis();
+//     }
+
+//     timeSincePerson0 = (millis()-personTimer0)/1000.0;
+//     if (timeSincePerson0<30){
+//       bri = 4095*(1-(timeSincePerson0/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(0,0,bri);
+//     }
+
+//     else if(measure.RangeMilliMeter >2 && measure.RangeMilliMeter <=4){
+//       if (personPosition){
+//         personTimer1 = millis();
+//       }
+
+//     timeSincePerson1 = (millis()-personTimer1)/1000.0;
+//     if (timeSincePerson1<30){
+//       bri = 4095*(1-(timeSincePerson1/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(1,0,bri);
+//     }
+
+//     else if(measure.RangeMilliMeter >4 && measure.RangeMilliMeter <=6){
+//       if (personDetected2){
+//         personTimer2 = millis();
+//       }
+
+//     timeSincePerson2 = (millis()-personTimer2)/1000.0;
+//     if (timeSincePerson2<30){
+//       bri = 4095*(1-(timeSincePerson2/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(2,0,bri);
+//     }
+
+//     else if(measure.RangeMilliMeter >6 && measure.RangeMilliMeter <=8){
+//       if (personDetected3){
+//         personTimer3 = millis();
+//       }
+
+//     timeSincePerson3 = (millis()-personTimer3)/1000.0;
+//     if (timeSincePerson3<30){
+//       bri = 4095*(1-(timeSincePerson3/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(3,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >8 && measure.RangeMilliMeter <=10){
+//       if (personDetected4){
+//         personTimer4 = millis();
+//      }
+
+//     timeSincePerson4 = (millis()-personTimer4)/1000.0;
+//     if (timeSincePerson4<30){
+//       bri = 4095*(1-(timeSincePerson4/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(4,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >10 && measure.RangeMilliMeter <=12){
+//       if (personDetected5){
+//         personTimer5 = millis();
+//       }
+
+//     timeSincePerson5 = (millis()-personTimer5)/1000.0;
+//     if (timeSincePerson5<30){
+//       bri = 4095*(1-(timeSincePerson5/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(5,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >14 && measure.RangeMilliMeter <=16){
+//       if (personDetected6){
+//         personTimer6 = millis();
+//     }
+
+//     timeSincePerson6 = (millis()-personTimer6)/1000.0;
+//     if (timeSincePerson6<30){
+//       bri = 4095*(1-(timeSincePerson6/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(6,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >18 && measure.RangeMilliMeter <=20){
+//       if (personDetected7){
+//         personTimer7 = millis();
+//       }
+
+//     timeSincePerson7 = (millis()-personTimer7)/1000.0;
+//     if (timeSincePerson7<30){
+//       bri = 4095*(1-(timeSincePerson7/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(7,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >20 && measure.RangeMilliMeter <=22){
+//       if (personDetected8){
+//         personTimer8 = millis();
+//       }
+
+//     timeSincePerson8 = (millis()-personTimer8)/1000.0;
+//     if (timeSincePerson8<30){
+//       bri = 4095*(1-(timeSincePerson8/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(8,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >22 && measure.RangeMilliMeter <=24){
+//       if (personDetected9){
+//         personTimer9 = millis();
+//       }
+
+//     timeSincePerson9 = (millis()-personTimer9)/1000.0;
+//     if (timeSincePerson9<30){
+//       bri = 4095*(1-(timeSincePerson9/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(9,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >26 && measure.RangeMilliMeter <=28){
+//       if (personDetected10){
+//         personTimer10 = millis();
+//      }
+
+//     timeSincePerson10 = (millis()-personTimer10)/1000.0;
+//     if (timeSincePerson10<30){
+//       bri = 4095*(1-(timeSincePerson10/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(10,0,bri);
+//       }
+
+//     else if(measure.RangeMilliMeter >28 && measure.RangeMilliMeter <=30){
+//       if (personDetected11){
+//         personTimer11 = millis();
+//       }
+
+//     timeSincePerson11 = (millis()-personTimer11)/1000.0;
+//     if (timeSincePerson11<30){
+//       bri = 4095*(1-(timeSincePerson11/30.0));
+//     }
+
+//     else {
+//       bri = 0;
+//     }
+
+//    pwm.setPWM(11,0,bri);
+//   } 
+  
+// }
+// return measure.RangeMilliMeter;
+//   }
