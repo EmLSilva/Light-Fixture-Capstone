@@ -36,18 +36,18 @@ int cred, cgreen, cblue;
 int personPosition();
 int personLocation;
 
-int ledPin0 = D1;
-int ledPin1 = D1;
-int ledPin2 = D2;
-int ledPin3 = D3;
-int ledPin4 = D4;
-int ledPin5 = D5;
-int ledPin6 = D6;
-int ledPin7 = D2;
-int ledPin8 = D3;
-int ledPin9 = D4;
-int ledPin10 = D5;
-int ledPin11 = D6;
+// int ledPin0 = D1;
+// int ledPin1 = D1;
+// int ledPin2 = D2;
+// int ledPin3 = D3;
+// int ledPin4 = D4;
+// int ledPin5 = D5;
+// int ledPin6 = D6;
+// int ledPin7 = D2;
+// int ledPin8 = D3;
+// int ledPin9 = D4;
+// int ledPin10 = D5;
+// int ledPin11 = D6;
 
 float personTimer0;
 float personTimer1;
@@ -118,18 +118,18 @@ float buttonOnOff;
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
-  pinMode (ledPin0, OUTPUT);
-  pinMode (ledPin1, OUTPUT);
-  pinMode (ledPin2, OUTPUT);
-  pinMode (ledPin3, OUTPUT);
-  pinMode (ledPin4, OUTPUT);
-  pinMode (ledPin5, OUTPUT);
-  pinMode (ledPin6, OUTPUT);
-   pinMode (ledPin7, OUTPUT);
-  pinMode (ledPin8, OUTPUT);
-  pinMode (ledPin9, OUTPUT);
-  pinMode (ledPin10, OUTPUT);
-  pinMode (ledPin11, OUTPUT);
+  // pinMode (ledPin0, OUTPUT);
+  // pinMode (ledPin1, OUTPUT);
+  // pinMode (ledPin2, OUTPUT);
+  // pinMode (ledPin3, OUTPUT);
+  // pinMode (ledPin4, OUTPUT);
+  // pinMode (ledPin5, OUTPUT);
+  // pinMode (ledPin6, OUTPUT);
+  //  pinMode (ledPin7, OUTPUT);
+  // pinMode (ledPin8, OUTPUT);
+  // pinMode (ledPin9, OUTPUT);
+  // pinMode (ledPin10, OUTPUT);
+  // pinMode (ledPin11, OUTPUT);
 
   Serial.begin(9600);
   waitFor(Serial.isConnected,10000);
@@ -182,11 +182,12 @@ void loop() {
   int personPosition(){
     VL53L0X_RangingMeasurementData_t measure;
     int personPosition;  
+  }
  
   lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
 
-  //if (measure.RangeStatus != 4) {  // phase failures have incorrect data
-  if(measure.RangeMilliMeter <= 2){
+  if (measure.RangeStatus != 0) {  
+    if(measure.RangeMilliMeter <= 2){
      if (personPosition){
       personTimer0 = millis();
     }
@@ -205,8 +206,8 @@ void loop() {
 
     else if(measure.RangeMilliMeter >2 && measure.RangeMilliMeter <=4){
       if (personPosition){
-      personTimer1 = millis();
-    }
+        personTimer1 = millis();
+      }
 
     timeSincePerson1 = (millis()-personTimer1)/1000.0;
     if (timeSincePerson1<30){
@@ -219,10 +220,11 @@ void loop() {
 
    pwm.setPWM(1,0,bri);
     }
+
     else if(measure.RangeMilliMeter >4 && measure.RangeMilliMeter <=6){
       if (personDetected2){
-      personTimer2 = millis();
-    }
+        personTimer2 = millis();
+      }
 
     timeSincePerson2 = (millis()-personTimer2)/1000.0;
     if (timeSincePerson2<30){
@@ -234,12 +236,12 @@ void loop() {
     }
 
    pwm.setPWM(2,0,bri);
-
     }
+
     else if(measure.RangeMilliMeter >6 && measure.RangeMilliMeter <=8){
       if (personDetected3){
-      personTimer3 = millis();
-    }
+        personTimer3 = millis();
+      }
 
     timeSincePerson3 = (millis()-personTimer3)/1000.0;
     if (timeSincePerson3<30){
@@ -251,12 +253,12 @@ void loop() {
     }
 
    pwm.setPWM(3,0,bri);
-
       }
+
     else if(measure.RangeMilliMeter >8 && measure.RangeMilliMeter <=10){
       if (personDetected4){
-      personTimer4 = millis();
-    }
+        personTimer4 = millis();
+     }
 
     timeSincePerson4 = (millis()-personTimer4)/1000.0;
     if (timeSincePerson4<30){
@@ -268,12 +270,12 @@ void loop() {
     }
 
    pwm.setPWM(4,0,bri);
-
       }
+
     else if(measure.RangeMilliMeter >10 && measure.RangeMilliMeter <=12){
       if (personDetected5){
-      personTimer5 = millis();
-    }
+        personTimer5 = millis();
+      }
 
     timeSincePerson5 = (millis()-personTimer5)/1000.0;
     if (timeSincePerson5<30){
@@ -286,6 +288,7 @@ void loop() {
 
    pwm.setPWM(5,0,bri);
       }
+
     else if(measure.RangeMilliMeter >14 && measure.RangeMilliMeter <=16){
       if (personDetected6){
         personTimer6 = millis();
@@ -302,10 +305,11 @@ void loop() {
 
    pwm.setPWM(6,0,bri);
       }
+
     else if(measure.RangeMilliMeter >18 && measure.RangeMilliMeter <=20){
-       if (personDetected7){
+      if (personDetected7){
         personTimer7 = millis();
-    }
+      }
 
     timeSincePerson7 = (millis()-personTimer7)/1000.0;
     if (timeSincePerson7<30){
@@ -317,12 +321,12 @@ void loop() {
     }
 
    pwm.setPWM(7,0,bri);
-
       }
+
     else if(measure.RangeMilliMeter >20 && measure.RangeMilliMeter <=22){
-       if (personDetected8){
+      if (personDetected8){
         personTimer8 = millis();
-    }
+      }
 
     timeSincePerson8 = (millis()-personTimer8)/1000.0;
     if (timeSincePerson8<30){
@@ -334,12 +338,12 @@ void loop() {
     }
 
    pwm.setPWM(8,0,bri);
-
       }
+
     else if(measure.RangeMilliMeter >22 && measure.RangeMilliMeter <=24){
-     if (personDetected9){
-      personTimer9 = millis();
-    }
+      if (personDetected9){
+        personTimer9 = millis();
+      }
 
     timeSincePerson9 = (millis()-personTimer9)/1000.0;
     if (timeSincePerson9<30){
@@ -351,12 +355,12 @@ void loop() {
     }
 
    pwm.setPWM(9,0,bri);
-
       }
+
     else if(measure.RangeMilliMeter >26 && measure.RangeMilliMeter <=28){
       if (personDetected10){
-      personTimer10 = millis();
-    }
+        personTimer10 = millis();
+     }
 
     timeSincePerson10 = (millis()-personTimer10)/1000.0;
     if (timeSincePerson10<30){
@@ -369,10 +373,11 @@ void loop() {
 
    pwm.setPWM(10,0,bri);
       }
+
     else if(measure.RangeMilliMeter >28 && measure.RangeMilliMeter <=30){
       if (personDetected11){
         personTimer11 = millis();
-    }
+      }
 
     timeSincePerson11 = (millis()-personTimer11)/1000.0;
     if (timeSincePerson11<30){
@@ -384,7 +389,6 @@ void loop() {
     }
 
    pwm.setPWM(11,0,bri);
-
   } 
   
 }
