@@ -36,6 +36,7 @@ int cred, cgreen, cblue;
 int personPosition();
 int personLocation;
 
+
 // int ledPin0 = D1;
 // int ledPin1 = D1;
 // int ledPin2 = D2;
@@ -113,8 +114,10 @@ float subValue,pubValue;
 /************Declare Functions*************/
 void MQTT_connect();
 bool MQTT_ping();
+void pixelWave();
 float buttonOnOff;
 
+Thread thread("pixelwave", pixelWave);
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
@@ -176,25 +179,26 @@ void setup() {
 
 void loop() {
 
-  //personLocation = personPosition();
-  //Serial.printf("Person Position:%i\r",personLocation);
-  
-
-
- 
-  
-  
-
-    t = millis()/1000.0;
-
-  for(i=0;i<PIXELCOUNT;i++) {
+  personLocation = personPosition();
+  Serial.printf("Person Position:%i\r",personLocation);
     
+}
+
+void pixelWave(){
+  float t;
+  int i;
+  float scale[PIXELCOUNT];
+
+while(true){
+
+  t = millis()/1000.0;
+  for(i=0;i<PIXELCOUNT;i++) {
     scale[i] = 0.25*sin(2*M_PI*((FREQ*t) - (i/(float)PIXELCOUNT)))+0.3;
     pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
   }
   pixel.show();
 }
-
+}
 
   int personPosition(){
     VL53L0X_RangingMeasurementData_t measure;
