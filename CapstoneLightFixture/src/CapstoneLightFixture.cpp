@@ -11,35 +11,38 @@
 #include "neopixel.h"
 #include "math.h"
 #include "Colors.h"
-#include "Grove-Ultrasonic-Ranger.h"
+//#include "Grove-Ultrasonic-Ranger.h" removed and replaced with ToF due to neopixel and led flickers
 #include <Adafruit_MQTT.h>
 #include "credentials.h"
 #include <Adafruit_MQTT/Adafruit_MQTT_SPARK.h>
 #include <Adafruit_MQTT/Adafruit_MQTT.h>
 #include "Adafruit_PWMServoDriver.h"
+#include "Adafruit_VL53L0X.h"
 
-const int sigPin = A5;
+//const int sigPin = A5;
 const float FREQ = 0.2;
 const int PIXELCOUNT = 60;
 const int LIGHTCOLOR = 0xFF8B17; // Hex color for 2700K light
 const int publishTime = 600000;
 Adafruit_NeoPixel pixel (PIXELCOUNT, SPI, WS2812B);
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
 float t;
 float scale[PIXELCOUNT];
 int i;
 int bri;
 int cred, cgreen, cblue;
-int ledPin1 = D1;
-int ledPin2 = D2;
-int ledPin3 = D3;
-int ledPin4 = D4;
-int ledPin5 = D5;
-int ledPin6 = D6;
-int distanceInch;
-float distance;
-float inch;
+int position();
+int location;
+// int ledPin1 = D1;
+// int ledPin2 = D2;
+// int ledPin3 = D3;
+// int ledPin4 = D4;
+// int ledPin5 = D5;
+// int ledPin6 = D6;
+
+float personTimer0;
 float personTimer1;
 float personTimer2;
 float personTimer3;
@@ -51,8 +54,8 @@ float personTimer8;
 float personTimer9;
 float personTimer10;
 float personTimer11;
-float personTimer12;
 
+float timeSincePerson0;
 float timeSincePerson1;
 float timeSincePerson2;
 float timeSincePerson3;
@@ -64,8 +67,8 @@ float timeSincePerson8;
 float timeSincePerson9;
 float timeSincePerson10;
 float timeSincePerson11;
-float timeSincePerson12;
 
+int personDetected0;
 int personDetected1;
 int personDetected2;
 int personDetected3;
@@ -77,11 +80,10 @@ int personDetected8;
 int personDetected9;
 int personDetected10;
 int personDetected11;
-int personDetected12;
 
 int rangeInInches;
 
-Ultrasonic ultrasonic(sigPin);
+lox ultrasonic();
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
@@ -110,8 +112,22 @@ SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
   Serial.begin(9600);
+  waitFor(Serial.isConnected,10000);
   pwm.begin();
   pwm.setPWMFreq(1600);
+
+  while (! Serial) { // wait until serial port opens for native USB devices
+    delay(1);
+  }
+  
+  Serial.println("Adafruit VL53L0X test");
+  if (!lox.begin()) {
+    Serial.println(F("Failed to start VL53L0X"));
+    while(1);
+  }
+ 
+  Serial.println(F("VL53L0X API Simple Ranging example\n\n"));  // power 
+
  // waitFor(Serial.isConnected,15000);
 
 // Connect to Internet but not Particle Cloud
@@ -127,14 +143,6 @@ void setup() {
 // Setup MQTT subscription
   //mqtt.subscribe(&subFeed); 
 
-  pinMode (ledPin1, OUTPUT);
-  pinMode (ledPin2, OUTPUT);
-  pinMode (ledPin3, OUTPUT);
-  pinMode (ledPin4, OUTPUT);
-  pinMode (ledPin5, OUTPUT);
-  pinMode (ledPin6, OUTPUT);
-
-
   pixel.begin();
   pixel.setBrightness(255);
   pixel.show();
@@ -142,13 +150,34 @@ void setup() {
   cred = LIGHTCOLOR >> 16;
   cgreen = LIGHTCOLOR >> 8 & 0xFF;
   cblue = LIGHTCOLOR & 0xFF;
-}
+
+  }
 
 
 void loop() {
-  rangeInInches = ultrasonic.MeasureInInches();
-  Serial.printf("Distance:%i\n", rangeInInches);
 
+  rangeInInches = lox.measureInInches();
+  Serial.printf("Distance:%i\n", rangeInInches);
+  VL53L0X_RangingMeasurementData_t measure;
+
+   lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+
+  if ((rangeInInches<3)&&(rangeInInches>0)){
+    if (personDetected0){
+      personTimer0 = millis();
+    }
+
+    timeSincePerson0 = (millis()-personTimer0)/1000.0;
+    if (timeSincePerson0<30){
+      bri = 4095*(1-(timeSincePerson0/30.0));
+    }
+
+    else {
+      bri = 0;
+    }
+
+   pwm.setPWM(0,0,bri);
+  
   if ((rangeInInches<5)&&(rangeInInches>0)){
     if (personDetected1){
       personTimer1 = millis();
@@ -347,24 +376,6 @@ if ((rangeInInches<25)&&(rangeInInches>23)){
 
 }
 
-if ((rangeInInches<27)&&(rangeInInches>25)){
-   if (personDetected12){
-      personTimer12 = millis();
-    }
-
-    timeSincePerson12 = (millis()-personTimer12)/1000.0;
-    if (timeSincePerson12<30){
-      bri = 4095*(1-(timeSincePerson12/30.0));
-    }
-
-    else {
-      bri = 0;
-    }
-
-   pwm.setPWM(12,0,bri);
-
-}
-
     t = millis()/1000.0;
 
   for(i=0;i<PIXELCOUNT;i++) {
@@ -373,4 +384,6 @@ if ((rangeInInches<27)&&(rangeInInches>25)){
     pixel.setPixelColor(i,scale[i]*cred,scale[i]*cgreen,scale[i]*cblue);
   }
   pixel.show();
+}
+
 }
