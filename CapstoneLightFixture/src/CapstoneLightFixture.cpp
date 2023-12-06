@@ -18,6 +18,7 @@
 #include <Adafruit_MQTT/Adafruit_MQTT.h>
 #include "Adafruit_PWMServoDriver.h"
 #include "Adafruit_VL53L0X.h"
+#include "credentials.h"
 
 //const int sigPin = A5;
 const float FREQ = 0.2;
@@ -31,51 +32,15 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 float t;
 float scale[PIXELCOUNT];
 int i;
-int bri[12];
+int bri[9];
+int briOn[9];
 int cred, cgreen, cblue;
 int personPosition();
 int personLocation;
 int segment;
+int timeSincePerson; 
 
-
-// int ledPin0 = D1;
-// int ledPin1 = D1;
-// int ledPin2 = D2;
-// int ledPin3 = D3;
-// int ledPin4 = D4;
-// int ledPin5 = D5;
-// int ledPin6 = D6;
-// int ledPin7 = D2;
-// int ledPin8 = D3;
-// int ledPin9 = D4;
-// int ledPin10 = D5;
-// int ledPin11 = D6;
-
-float personTimer[12];
-// float personTimer1;
-// float personTimer2;
-// float personTimer3;
-// float personTimer4;
-// float personTimer5;
-// float personTimer6;
-// float personTimer7;
-// float personTimer8;
-// float personTimer9;
-// float personTimer10;
-// float personTimer11;
-
-float timeSincePerson;
-// float timeSincePerson1;
-// float timeSincePerson2;
-// float timeSincePerson3;
-// float timeSincePerson4;
-// float timeSincePerson5;
-// float timeSincePerson6;
-// float timeSincePerson7;
-// float timeSincePerson8;
-// float timeSincePerson9;
-// float timeSincePerson10;
-// float timeSincePerson11;
+float personTimer[9];
 
 int personDetected0;
 int personDetected1;
@@ -92,9 +57,8 @@ int personDetected11;
 
 int rangeInInches;
 
-//lox ultrasonic();
 SYSTEM_MODE(SEMI_AUTOMATIC);
-SYSTEM_THREAD(ENABLED);
+//SYSTEM_THREAD(ENABLED);
 
 /************ Global State (you don't need to change this!) ***   ***************/ 
 TCPClient TheClient; 
@@ -106,7 +70,7 @@ Adafruit_MQTT_SPARK mqtt(&TheClient,AIO_SERVER,AIO_SERVERPORT,AIO_USERNAME,AIO_K
 // Setup Feeds to publish or subscribe 
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname> 
 Adafruit_MQTT_Subscribe buttonFeed = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/buttononoff"); 
-Adafruit_MQTT_Publish randomFeed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/randomnumber");
+Adafruit_MQTT_Publish counterFeed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/randomnumber");
 
 /************Declare Variables*************/
 unsigned int last, lastTime;
@@ -117,23 +81,12 @@ void MQTT_connect();
 bool MQTT_ping();
 void pixelWave();
 float buttonOnOff;
+float personCounter;
 
 Thread thread("pixelwave", pixelWave);
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 void setup() {
-  // pinMode (ledPin0, OUTPUT);
-  // pinMode (ledPin1, OUTPUT);
-  // pinMode (ledPin2, OUTPUT);
-  // pinMode (ledPin3, OUTPUT);
-  // pinMode (ledPin4, OUTPUT);
-  // pinMode (ledPin5, OUTPUT);
-  // pinMode (ledPin6, OUTPUT);
-  //  pinMode (ledPin7, OUTPUT);
-  // pinMode (ledPin8, OUTPUT);
-  // pinMode (ledPin9, OUTPUT);
-  // pinMode (ledPin10, OUTPUT);
-  // pinMode (ledPin11, OUTPUT);
 
   Serial.begin(9600);
   waitFor(Serial.isConnected,10000);
@@ -143,7 +96,7 @@ void setup() {
   while (! Serial) { // wait until serial port opens for native USB devices
     delay(1);
   }
-  
+  delay(2000);
   Serial.println("Adafruit VL53L0X test");
   if (!lox.begin()) {
     Serial.println(F("Failed to start VL53L0X"));
@@ -152,20 +105,21 @@ void setup() {
  
   Serial.println(F("VL53L0X API Simple Ranging example\n\n"));  // power 
 
- // waitFor(Serial.isConnected,15000);
+ waitFor(Serial.isConnected,15000);
 
-// Connect to Internet but not Particle Cloud
-   //WiFi.on();
-   //WiFi.connect();
-   //while(WiFi.connecting()) {
-   //Serial.printf(".");
+//Connect to Internet but not Particle Cloud
+   WiFi.on();
+   WiFi.connect();
+   while(WiFi.connecting()) {
+   Serial.printf(".");
 
-  // }
+  }
 
-  //Serial.printf("\n\n");
+  Serial.printf("\n\n");
 
-// Setup MQTT subscription
-  //mqtt.subscribe(&subFeed); 
+//Setup MQTT subscription
+  mqtt.subscribe(&buttonFeed); 
+  mqtt.subscribe(&counterFeed); 
 
   pixel.begin();
   pixel.setBrightness(255);
@@ -179,37 +133,102 @@ void setup() {
 
 
 void loop() {
+  MQTT_connect();
+  MQTT_ping();
+
+  Adafruit_MQTT_Subscribe *subscription;
+   while ((subscription = mqtt.readSubscription(100))) {// changed from .readSubscription
+     if (subscription == &buttonFeed) { //changed from &subFeed
+       subValue = atof((char *)buttonFeed.lastread); //changed from subValue = atof((char*))subFeed.lastread);
+     }
+   }
+
+    if((millis()-lastTime > 600000)) {
+    if(mqtt.Update()) {
+     personCounter =i++;
+      counterFeed.publish(personCounter);
+      Serial.printf("Publishing %0.2f \n",personCounter); 
+      } 
+    lastTime = millis();
+  } 
+
+  // Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+void MQTT_connect() {
+  int8_t ret;
+ 
+  // Return if already connected.
+  if (mqtt.connected()) { //checks to see if connected to function
+    return;
+  }
+ 
+  Serial.print("Connecting to MQTT... ");
+ 
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       Serial.printf("Error Code %s\n",mqtt.connectErrorString(ret));
+       Serial.printf("Retrying MQTT connection in 5 seconds...\n");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds and try again
+  }
+  Serial.printf("MQTT Connected!\n");
+}
+
+bool MQTT_ping() {
+  static unsigned int last;
+  bool pingStatus;
+
+  if ((millis()-last)>120000) {
+      Serial.printf("Pinging MQTT \n");
+      pingStatus = mqtt.ping();
+      if(!pingStatus) {
+        Serial.printf("Disconnecting \n");
+        mqtt.disconnect();
+      }
+      last = millis();
+  }
+  return pingStatus;
+}
 
   //personLocation = personPosition();
   //Serial.printf("Person Position:%i\r",personLocation);
        VL53L0X_RangingMeasurementData_t measure;
     //static int personPosition;  
     lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
-    if (measure.RangeStatus != 0) {  
+    // if (measure.RangeStatus != 0) {  
       Serial.printf("mm: %i\n", measure.RangeMilliMeter);
   //measure.RangeMilliMeter;
-      segment = measure.RangeMilliMeter/25;
-    }
-  if (segment<12){
-  personTimer[i]= millis();
+      segment = measure.RangeMilliMeter/16;
+    
+  if (segment < 9){
+  personTimer[segment]= millis();
+
   Serial.printf("Segment %i \n", segment);
-}
-for (int ii=0; ii<12; ii++){
-  timeSincePerson = ((millis()-personTimer[ii])/1000.0);
+  //Serial.printf("Person Timer %i\n", personTimer[i]);
+
+for ( i=0; i<9; i++){
+  timeSincePerson = ((millis()-personTimer[i])/1000.0);
+  //Serial.printf("timeSincePerson %i\n", timeSincePerson);
+
   if (timeSincePerson <30){
-    bri[ii]= 4095*(1-(timeSincePerson/30.0));
+    briOn[i]= 4096*(1-(timeSincePerson/30.0));
+    bri[i] = 0;
+    Serial.printf("bri %i\n", bri[i]);
   }
   else{
-    bri[ii]= 0;
+    briOn[i]= 0;
+    bri[i] = 4096;
   }
   }
-  for (int iii=0; iii<12; iii++){
-  pwm.setPWM(iii,0,bri[iii]);
+  }
+  for ( i=0; i<12; i++){
+    //for(int ii = 0; ii < 9; ii++){
+  pwm.setPWM(i,briOn[i],bri[i]);
 }
+    }
 
-    
+//}
 
-}
+//}
 
 void pixelWave(){
   float t;
