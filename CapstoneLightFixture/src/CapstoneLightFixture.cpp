@@ -39,6 +39,7 @@ int personPosition();
 int personLocation;
 int segment;
 int timeSincePerson; 
+int lastPerson;
 
 float personTimer[9];
 
@@ -57,8 +58,8 @@ int personDetected11;
 
 int rangeInInches;
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-//SYSTEM_THREAD(ENABLED);
+SYSTEM_MODE(AUTOMATIC);
+SYSTEM_THREAD(ENABLED);
 
 /************ Global State (you don't need to change this!) ***   ***************/ 
 TCPClient TheClient; 
@@ -119,7 +120,7 @@ void setup() {
 
 //Setup MQTT subscription
   mqtt.subscribe(&buttonFeed); 
-  mqtt.subscribe(&counterFeed); 
+  //mqtt.subscribe(&counterFeed); 
 
   pixel.begin();
   pixel.setBrightness(255);
@@ -142,52 +143,23 @@ void loop() {
        subValue = atof((char *)buttonFeed.lastread); //changed from subValue = atof((char*))subFeed.lastread);
      }
    }
-
-    if((millis()-lastTime > 600000)) {
-    if(mqtt.Update()) {
-     personCounter =i++;
-      counterFeed.publish(personCounter);
-      Serial.printf("Publishing %0.2f \n",personCounter); 
-      } 
-    lastTime = millis();
-  } 
+   //turing thread on/off
+  // if (subValue ==0) {
+  //   SYSTEM_THREAD(DISABLED);
+  //   Serial.printf("Lights Off\n");
+  //   for (i=0;i<PIXELCOUNT;i++) {
+  //   pixel.setPixelColor(i,0,0,0);
+  //   pixel.show();
+  // }
+  // }
+  // else{
+  //   SYSTEM_THREAD(ENABLED);
+  // }
+    
 
   // Function to connect and reconnect as necessary to the MQTT server.
 // Should be called in the loop function and it will take care if connecting.
-void MQTT_connect() {
-  int8_t ret;
- 
-  // Return if already connected.
-  if (mqtt.connected()) { //checks to see if connected to function
-    return;
-  }
- 
-  Serial.print("Connecting to MQTT... ");
- 
-  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
-       Serial.printf("Error Code %s\n",mqtt.connectErrorString(ret));
-       Serial.printf("Retrying MQTT connection in 5 seconds...\n");
-       mqtt.disconnect();
-       delay(5000);  // wait 5 seconds and try again
-  }
-  Serial.printf("MQTT Connected!\n");
-}
 
-bool MQTT_ping() {
-  static unsigned int last;
-  bool pingStatus;
-
-  if ((millis()-last)>120000) {
-      Serial.printf("Pinging MQTT \n");
-      pingStatus = mqtt.ping();
-      if(!pingStatus) {
-        Serial.printf("Disconnecting \n");
-        mqtt.disconnect();
-      }
-      last = millis();
-  }
-  return pingStatus;
-}
 
   //personLocation = personPosition();
   //Serial.printf("Person Position:%i\r",personLocation);
@@ -223,8 +195,21 @@ for ( i=0; i<9; i++){
   for ( i=0; i<12; i++){
     //for(int ii = 0; ii < 9; ii++){
   pwm.setPWM(i,briOn[i],bri[i]);
+  }
+  if(measure.RangeMilliMeter <200) {
+      personCounter=1;  
+  } 
+  else {
+  personCounter=0;
+  }
+  if ((millis() - lastPerson) > 3600000) {
+    if (mqtt.Update()){
+        counterFeed.publish(personCounter);
+        lastPerson = millis();
+      }
+  }
+  Serial.printf("Publishing %0.2f \n",personCounter); 
 }
-    }
 
 //}
 
@@ -244,6 +229,41 @@ while(true){
   }
   pixel.show();
 }
+}
+
+void MQTT_connect() {
+  int8_t ret;
+ 
+  // Return if already connected.
+  if (mqtt.connected()) { //checks to see if connected to function
+    return;
+  }
+ 
+  Serial.print("Connecting to MQTT... ");
+ 
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       Serial.printf("Error Code %s\n",mqtt.connectErrorString(ret));
+       Serial.printf("Retrying MQTT connection in 5 seconds...\n");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds and try again
+  }
+  Serial.printf("MQTT Connected!\n");
+}
+
+bool MQTT_ping() {
+  static unsigned int last;
+  bool pingStatus;
+
+  if ((millis()-last)>120000) {
+      Serial.printf("Pinging MQTT \n");
+      pingStatus = mqtt.ping();
+      if(!pingStatus) {
+        Serial.printf("Disconnecting \n");
+        mqtt.disconnect();
+      }
+      last = millis();
+  }
+  return pingStatus;
 }
 
 
